@@ -1,0 +1,1 @@
+ALTER TABLE "clock-in_user" ADD COLUMN "isAdmin" boolean DEFAULT false NOT NULL;
