@@ -15,6 +15,7 @@ import {
 	users,
 	workplaces,
 } from "~/server/db/schema";
+import { getAddress } from "~/utils/address";
 
 export const attendanceRouter = createTRPCRouter({
 	// 오늘 출퇴근 기록 조회
@@ -447,6 +448,17 @@ export const attendanceRouter = createTRPCRouter({
 		.mutation(async ({ ctx, input }) => {
 			await ctx.db.delete(workplaces).where(eq(workplaces.id, input.id));
 			return { success: true };
+		}),
+	getAddress: protectedProcedure
+		.input(
+			z.object({
+				latitude: z.number(),
+				longitude: z.number(),
+			}),
+		)
+		.query(async ({ input }) => {
+			const address = await getAddress(input.latitude, input.longitude);
+			return address;
 		}),
 
 	// 사용자별 기본 출퇴근 시간 조회

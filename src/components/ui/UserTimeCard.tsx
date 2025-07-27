@@ -13,7 +13,7 @@ type UserTimeCardSetting =
 
 interface UserTimeCardProps {
 	setting: UserTimeCardSetting;
-	onUpdate: (userId: string, clockInTime: string, clockOutTime: string) => void;
+	onUpdate: (clockInTime: string, clockOutTime: string) => void;
 }
 
 export function UserTimeCard({ setting, onUpdate }: UserTimeCardProps) {
@@ -22,7 +22,7 @@ export function UserTimeCard({ setting, onUpdate }: UserTimeCardProps) {
 	const [clockOutTime, setClockOutTime] = useState(setting.defaultClockOutTime);
 
 	const handleSave = () => {
-		onUpdate(setting.userId, clockInTime, clockOutTime);
+		onUpdate(clockInTime, clockOutTime);
 	};
 
 	return (

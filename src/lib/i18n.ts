@@ -57,11 +57,11 @@ const translations = {
 		workplaceSettingsDescription: "출퇴근 가능한 장소를 설정합니다.",
 		noWorkplacesDescription:
 			"등록된 장소가 없습니다. 새로운 장소를 추가해주세요.",
-		workplaceSettings: "출퇴근 장소 설정",
+		workplaceSettings: "장소 설정",
 		defaultTimes: "기본 출퇴근 시간",
 		userSettings: "회원별 설정",
-		todayStatus: "오늘 출퇴근 상황",
-		monthlyRecords: "이번 달 출퇴근 기록",
+		todayStatus: "오늘 기록",
+		monthlyRecords: "월간 기록",
 		filterLateEarly: "지각/조퇴 필터",
 		showAll: "전체 보기",
 		totalEmployees: "전체 직원",
@@ -96,20 +96,29 @@ const translations = {
 		applyToAllUsers: "모든 사용자에게 적용",
 		defaultTimesUpdated: "기본 시간이 업데이트되었습니다",
 		userTimeUpdated: "사용자 시간이 업데이트되었습니다",
+		defaultTimesSaved: "기본 시간이 저장되었습니다",
+		saving: "저장 중...",
+		noUserTimes: "사용자 시간 설정이 없습니다",
+		workplaceCreated: "장소가 생성되었습니다",
+		workplaceUpdated: "장소가 수정되었습니다",
+		workplaceDeleted: "장소가 삭제되었습니다",
+		confirmDeleteWorkplace: "정말 이 장소를 삭제하시겠습니까?",
+		noTodayRecords: "오늘 출퇴근 기록이 없습니다",
+		noTodayRecordsDescription: "오늘 출퇴근한 직원이 없습니다",
 
 		// 공휴일 관리
-		holidayManagement: "공휴일 관리",
-		holidays: "공휴일",
-		addHoliday: "공휴일 추가",
-		editHoliday: "공휴일 수정",
-		holidayName: "공휴일명",
-		holidayType: "공휴일 유형",
-		weeklyHoliday: "주간 공휴일",
-		specificDateHoliday: "특정 날짜 공휴일",
+		holidayManagement: "휴일 관리",
+		holidays: "휴일",
+		addHoliday: "휴일 추가",
+		editHoliday: "휴일 수정",
+		holidayName: "휴일명",
+		holidayType: "휴일 유형",
+		weeklyHoliday: "주간 휴일",
+		specificDateHoliday: "특정 날짜 휴일",
 		weeklyDay: "요일",
 		specificDate: "특정 날짜",
 		description: "설명",
-		noHolidays: "등록된 공휴일이 없습니다",
+		noHolidays: "등록된 휴일이 없습니다",
 		sunday: "일요일",
 		monday: "월요일",
 		tuesday: "화요일",
@@ -124,6 +133,17 @@ const translations = {
 		selectDayOfWeek: "요일 선택",
 		enterSpecificDate: "특정 날짜 입력",
 		enterDescription: "설명 입력 (선택사항)",
+		holidayCreated: "휴일이 생성되었습니다",
+		holidayUpdated: "휴일이 수정되었습니다",
+		holidayDeleted: "휴일이 삭제되었습니다",
+		confirmDeleteHoliday: "정말 이 휴일을 삭제하시겠습니까?",
+		holidaysDescription: "공휴일을 관리합니다",
+		holidayTypeLabel: "유형",
+		weeklyHolidayLabel: "주간",
+		dayOfWeekLabel: "요일",
+		holidayLabel: "휴일",
+		noHolidaysDescription:
+			"등록된 휴일이 없습니다. 새로운 휴일을 추가해주세요.",
 
 		// 설정
 		settings: "설정",
@@ -263,6 +283,15 @@ const translations = {
 		applyToAllUsers: "Apply to All Users",
 		defaultTimesUpdated: "Default times updated",
 		userTimeUpdated: "User time updated",
+		defaultTimesSaved: "Default times saved",
+		saving: "Saving...",
+		noUserTimes: "No user time settings",
+		workplaceCreated: "Workplace created successfully",
+		workplaceUpdated: "Workplace updated successfully",
+		workplaceDeleted: "Workplace deleted successfully",
+		confirmDeleteWorkplace: "Are you sure you want to delete this workplace?",
+		noTodayRecords: "No attendance records for today",
+		noTodayRecordsDescription: "No employees have clocked in today",
 
 		// Holiday Management
 		holidayManagement: "Holiday Management",
@@ -288,6 +317,16 @@ const translations = {
 		// Holiday Management Additional Translations
 		holidayManagementComingSoon:
 			"Holiday management functionality will be added soon",
+		holidayCreated: "Holiday created successfully",
+		holidayUpdated: "Holiday updated successfully",
+		holidayDeleted: "Holiday deleted successfully",
+		confirmDeleteHoliday: "Are you sure you want to delete this holiday?",
+		holidaysDescription: "Manage holidays",
+		holidayTypeLabel: "Type",
+		weeklyHolidayLabel: "Weekly",
+		dayOfWeekLabel: "Day of Week",
+		holidayLabel: "Holiday",
+		noHolidaysDescription: "No holidays registered. Please add a new holiday.",
 		selectHolidayType: "Select Holiday Type",
 		selectDayOfWeek: "Select Day of Week",
 		enterSpecificDate: "Enter Specific Date",
@@ -365,3 +404,18 @@ export function t(key: TranslationKey): string {
 	const language = store.get(languageAtom);
 	return translations[language][key] ?? key;
 }
+
+export const getStatusTranslationKey = (status: string): TranslationKey => {
+	switch (status) {
+		case "normal":
+			return "normal";
+		case "late":
+			return "late";
+		case "early_leave":
+			return "earlyLeave";
+		case "absent":
+			return "absent";
+		default:
+			return "normal";
+	}
+};

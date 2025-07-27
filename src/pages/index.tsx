@@ -13,7 +13,12 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
-import { useTranslation } from "~/lib/i18n";
+import {
+	type TranslationKey,
+	getStatusTranslationKey,
+	t,
+	useTranslation,
+} from "~/lib/i18n";
 import { getCurrentLocation, isWithinWorkplace } from "~/lib/location";
 import { api } from "~/utils/api";
 
@@ -26,6 +31,15 @@ export default function Home() {
 		longitude: number;
 	} | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+
+	const { data: address } = api.attendance.getAddress.useQuery(
+		{
+			latitude: currentLocation?.latitude ?? 0,
+			longitude: currentLocation?.longitude ?? 0,
+		},
+		{ enabled: !!currentLocation },
+	);
+	console.log("Log ~ Home ~ address:", address);
 
 	// API 호출
 	const { data: todayRecord, refetch: refetchTodayRecord } =
@@ -237,22 +251,16 @@ export default function Home() {
 							</p>
 						</div>
 
-						<Card className="w-full max-w-md">
-							<CardHeader className="text-center">
-								<CardTitle className="text-2xl">{t("login")}</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<Button
-									className="w-full"
-									onClick={() => {
-										signIn("kakao");
-									}}
-									disabled={isLoading}
-								>
-									{t("signInWithKakao")}
-								</Button>
-							</CardContent>
-						</Card>
+						<Button
+							size="lg"
+							className="w-full font-bold text-base"
+							onClick={() => {
+								signIn("kakao");
+							}}
+							disabled={isLoading}
+						>
+							{t("signInWithKakao")}
+						</Button>
 					</div>
 				</main>
 			</>
@@ -268,7 +276,7 @@ export default function Home() {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100 p-4 dark:from-gray-900 dark:to-gray-800">
-				<div className="container mx-auto max-w-2xl space-y-6">
+				<div className="container mx-auto max-w-2xl space-y-4">
 					{/* 헤더 */}
 					<div className="flex items-center justify-between">
 						<h1 className="font-bold text-2xl text-gray-900 dark:text-white">
@@ -277,7 +285,7 @@ export default function Home() {
 					</div>
 
 					{/* 현재 시간 */}
-					<Card>
+					{/* <Card>
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2">
 								<Clock className="h-5 w-5" />
@@ -296,7 +304,7 @@ export default function Home() {
 								})}
 							</p>
 						</CardContent>
-					</Card>
+					</Card> */}
 
 					{/* 현재 위치 */}
 					<Card>
@@ -315,6 +323,7 @@ export default function Home() {
 								<p className="font-mono text-sm">
 									{currentLocation.latitude.toFixed(6)},{" "}
 									{currentLocation.longitude.toFixed(6)}
+									{address?.results?.[0]?.region?.area1?.name}
 								</p>
 							) : (
 								<p className="text-gray-500 text-sm">{t("loading")}</p>
@@ -351,6 +360,19 @@ export default function Home() {
 							<CardTitle className="flex items-center gap-2">
 								<Calendar className="h-5 w-5" />
 								{t("todayRecord")}
+								{todayRecord?.status !== "normal" && (
+									<div className="">
+										<Badge
+											variant={
+												todayRecord?.status === "late"
+													? "destructive"
+													: "secondary"
+											}
+										>
+											{getStatusBadge(todayRecord?.status ?? "normal")}
+										</Badge>
+									</div>
+								)}
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
@@ -386,23 +408,6 @@ export default function Home() {
 											</div>
 										</>
 									)}
-									{todayRecord.status !== "normal" && (
-										<div className="mt-3">
-											<Badge
-												variant={
-													todayRecord.status === "late"
-														? "destructive"
-														: "secondary"
-												}
-											>
-												{t(
-													todayRecord.status === "early_leave"
-														? "earlyLeave"
-														: todayRecord.status,
-												)}
-											</Badge>
-										</div>
-									)}
 								</div>
 							) : (
 								<p className="text-center text-gray-500 text-sm">
@@ -416,3 +421,18 @@ export default function Home() {
 		</>
 	);
 }
+
+export const getStatusBadge = (status: string) => {
+	switch (status) {
+		case "normal":
+			return <Badge variant="default">{t("normal")}</Badge>;
+		case "late":
+			return <Badge variant="destructive">{t("late")}</Badge>;
+		case "early_leave":
+			return <Badge variant="secondary">{t("earlyLeave")}</Badge>;
+		default:
+			return (
+				<Badge variant="outline">{t(getStatusTranslationKey(status))}</Badge>
+			);
+	}
+};
