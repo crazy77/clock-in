@@ -1,12 +1,14 @@
 import { format } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import dayjs from "dayjs";
 import { Calendar, Clock, MapPin, User } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
+import NaverMap from "~/components/Map";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -243,7 +245,7 @@ export default function Home() {
 								<Button
 									className="w-full"
 									onClick={() => {
-										window.location.href = "/api/auth/signin";
+										signIn("kakao");
 									}}
 									disabled={isLoading}
 								>
@@ -272,12 +274,6 @@ export default function Home() {
 						<h1 className="font-bold text-2xl text-gray-900 dark:text-white">
 							{t("appName")}
 						</h1>
-						<div className="flex items-center gap-2">
-							<User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-							<span className="text-gray-600 text-sm dark:text-gray-300">
-								{sessionData.user.name}
-							</span>
-						</div>
 					</div>
 
 					{/* 현재 시간 */}
@@ -311,6 +307,10 @@ export default function Home() {
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
+							<NaverMap
+								lat={currentLocation?.latitude ?? 37.5665}
+								lng={currentLocation?.longitude ?? 126.978}
+							/>
 							{currentLocation ? (
 								<p className="font-mono text-sm">
 									{currentLocation.latitude.toFixed(6)},{" "}

@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -8,8 +8,10 @@ import {
 	Home,
 	LogOut,
 	Settings,
+	User,
 	Users,
 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import { useTranslation } from "~/lib/i18n";
 
@@ -60,17 +62,28 @@ export function Navigation() {
 						</div>
 					</div>
 
-					<div className="flex items-center space-x-4">
-						<div className="hidden text-sm md:block">
-							<span className="text-muted-foreground">
-								{sessionData.user.name || sessionData.user.email}
-							</span>
+					<div className="flex items-center">
+						<div className=" text-sm ">
+							<div className="flex items-center gap-2">
+								{sessionData.user.image ? (
+									<Image
+										src={sessionData.user.image}
+										alt="User"
+										width={20}
+										height={20}
+										className="rounded-full"
+									/>
+								) : (
+									<User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+								)}
+								<span className="text-gray-600 text-sm dark:text-gray-300">
+									{sessionData.user.name}
+								</span>
+							</div>
 						</div>
 
-						<Button variant="ghost" size="sm" asChild>
-							<Link href="/api/auth/signout">
-								<LogOut className="h-4 w-4" />
-							</Link>
+						<Button variant="ghost" size="sm" onClick={() => signOut()}>
+							<LogOut className="h-4 w-4" />
 						</Button>
 					</div>
 				</div>

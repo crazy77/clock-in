@@ -17,6 +17,9 @@ const config = {
 		locales: ["ko"],
 		defaultLocale: "ko",
 	},
+	images: {
+		domains: ["k.kakaocdn.net", "lh3.googleusercontent.com", "i.namu.wiki"],
+	},
 };
 
 export default config;

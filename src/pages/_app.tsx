@@ -28,7 +28,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
 					<ThemeProvider />
 					<Navigation />
 					<Component {...pageProps} />
-					<Toaster />
+					<Toaster richColors />
 				</div>
 			</SessionProvider>
 		</Provider>

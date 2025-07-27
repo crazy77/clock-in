@@ -456,6 +456,7 @@ export const attendanceRouter = createTRPCRouter({
 				id: true,
 				name: true,
 				email: true,
+				image: true,
 			},
 		});
 
@@ -469,6 +470,7 @@ export const attendanceRouter = createTRPCRouter({
 					userId: user.id,
 					name: user.name,
 					email: user.email,
+					image: user.image,
 					defaultClockInTime: setting?.defaultClockInTime || "09:00",
 					defaultClockOutTime: setting?.defaultClockOutTime || "18:00",
 				};

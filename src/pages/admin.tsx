@@ -1,10 +1,10 @@
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import dayjs from "dayjs";
 import {
 	Building,
 	Calendar,
@@ -18,8 +18,10 @@ import {
 	Trash2,
 	TrendingDown,
 	TrendingUp,
+	User,
 	Users,
 } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { AdminGuard } from "~/components/ui/AdminGuard";
 import { DatePicker } from "~/components/ui/DatePicker";
@@ -141,6 +143,7 @@ function AdminPageContent() {
 	} = api.attendance.getDefaultTimes.useQuery(undefined, {
 		enabled: !!sessionData?.user,
 	});
+	console.log("Log ~ AdminPageContent ~ defaultTimes:", defaultTimes);
 
 	// 기본 출퇴근 시간 설정 뮤테이션
 	const updateDefaultTimesMutation =
@@ -386,6 +389,12 @@ function AdminPageContent() {
 		workplace: record.workplace,
 	}));
 
+	const workingHour = (clockInTime: Date, clockOutTime: Date) => {
+		const workTime = dayjs(clockOutTime).diff(dayjs(clockInTime), "minute");
+		const timeFormatted = `${Math.floor(workTime / 60)}시간 ${workTime % 60}분`;
+		return timeFormatted;
+	};
+
 	if (todayLoading || monthlyLoading) {
 		return (
 			<div className="container mx-auto p-4">
@@ -441,11 +450,24 @@ function AdminPageContent() {
 								</Card>
 							) : (
 								todayStatus?.map((record) => (
-									<Card key={record.id}>
-										<CardContent className="p-4">
+									<Card key={record.id} className="py-4">
+										<CardContent className="">
 											<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 												<div className="flex-1">
 													<div className="mb-2 flex items-center gap-2">
+														<div className="flex items-center gap-2">
+															{record.user?.image ? (
+																<Image
+																	src={record.user.image}
+																	alt="User"
+																	width={20}
+																	height={20}
+																	className="rounded-full"
+																/>
+															) : (
+																<User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+															)}
+														</div>
 														<h3 className="font-semibold">
 															{record.user?.name ||
 																record.user?.email ||
@@ -463,7 +485,22 @@ function AdminPageContent() {
 															{t(getStatusTranslationKey(record.status))}
 														</Badge>
 													</div>
-													<div className="grid grid-cols-1 gap-2 text-muted-foreground text-sm sm:grid-cols-2">
+													<div className="grid grid-cols-2 gap-2 text-muted-foreground text-sm sm:grid-cols-4">
+														<div>
+															{t("date")}:{" "}
+															{format(new Date(record.date), "yy-M-d(E)", {
+																locale: ko,
+															})}
+														</div>
+														<div>
+															{t("workingHours")}:{" "}
+															{record.clockInTime && record.clockOutTime
+																? workingHour(
+																		record.clockInTime,
+																		record.clockOutTime,
+																	)
+																: "-"}
+														</div>
 														<div>
 															{t("clockIn")}:{" "}
 															{record.clockInTime
@@ -531,11 +568,24 @@ function AdminPageContent() {
 								</Card>
 							) : (
 								monthlyRecords?.map((record) => (
-									<Card key={record.id}>
-										<CardContent className="p-4">
+									<Card key={record.id} className="py-4">
+										<CardContent>
 											<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 												<div className="flex-1">
 													<div className="mb-2 flex items-center gap-2">
+														<div className="flex items-center gap-2">
+															{record.user?.image ? (
+																<Image
+																	src={record.user.image}
+																	alt="User"
+																	width={20}
+																	height={20}
+																	className="rounded-full"
+																/>
+															) : (
+																<User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+															)}
+														</div>
 														<h3 className="font-semibold">
 															{record.user?.name ||
 																record.user?.email ||
@@ -553,12 +603,21 @@ function AdminPageContent() {
 															{t(getStatusTranslationKey(record.status))}
 														</Badge>
 													</div>
-													<div className="grid grid-cols-1 gap-2 text-muted-foreground text-sm sm:grid-cols-3">
+													<div className="grid grid-cols-2 gap-2 text-muted-foreground text-sm">
 														<div>
 															{t("date")}:{" "}
-															{format(new Date(record.date), "yyyy-MM-dd", {
+															{format(new Date(record.date), "yy-M-d(E)", {
 																locale: ko,
 															})}
+														</div>
+														<div>
+															{t("workingHours")}:{" "}
+															{record.clockInTime && record.clockOutTime
+																? workingHour(
+																		record.clockInTime,
+																		record.clockOutTime,
+																	)
+																: "-"}
 														</div>
 														<div>
 															{t("clockIn")}:{" "}
@@ -632,8 +691,8 @@ function AdminPageContent() {
 										</div>
 									) : (
 										workplaces?.map((workplace) => (
-											<Card key={workplace.id}>
-												<CardContent className="p-4">
+											<Card key={workplace.id} className="py-4">
+												<CardContent>
 													<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 														<div className="flex-1">
 															<h3 className="font-semibold">
@@ -731,7 +790,7 @@ function AdminPageContent() {
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<p className="mb-4 text-muted-foreground">
+								<p className="mb-4 text-muted-foreground text-sm">
 									{t("individualTimesDescription")}
 								</p>
 
