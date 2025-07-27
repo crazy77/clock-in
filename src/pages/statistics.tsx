@@ -84,7 +84,7 @@ export default function StatisticsPage() {
 			selectedMonthData
 				.filter((r) => r.clockInTime)
 				.reduce((acc, record) => {
-					const time = new Date(record.clockInTime!);
+					const time = new Date(record.clockInTime ?? "");
 					return acc + time.getHours() * 60 + time.getMinutes();
 				}, 0) / selectedMonthData.filter((r) => r.clockInTime).length || 0;
 
@@ -92,7 +92,7 @@ export default function StatisticsPage() {
 			selectedMonthData
 				.filter((r) => r.clockOutTime)
 				.reduce((acc, record) => {
-					const time = new Date(record.clockOutTime!);
+					const time = new Date(record.clockOutTime ?? "");
 					return acc + time.getHours() * 60 + time.getMinutes();
 				}, 0) / selectedMonthData.filter((r) => r.clockOutTime).length || 0;
 
@@ -125,7 +125,7 @@ export default function StatisticsPage() {
 		const dailyData = selectedMonthData
 			.filter((r) => r.clockInTime)
 			.map((record) => {
-				const clockInTime = new Date(record.clockInTime!);
+				const clockInTime = new Date(record.clockInTime ?? "");
 				const hours = clockInTime.getHours();
 				const minutes = clockInTime.getMinutes();
 				const timeInMinutes = hours * 60 + minutes;
@@ -474,14 +474,17 @@ export default function StatisticsPage() {
 													cy="50%"
 													labelLine={false}
 													label={({ name, percent }) =>
-														`${name} ${(percent * 100).toFixed(0)}%`
+														`${name} ${(percent ?? 0 * 100).toFixed(0)}%`
 													}
 													outerRadius={80}
 													fill="#8884d8"
 													dataKey="value"
 												>
 													{chartData.statusData.map((entry, index) => (
-														<Cell key={`cell-${index}`} fill={entry.color} />
+														<Cell
+															key={`cell-${entry.name}`}
+															fill={entry.color}
+														/>
 													))}
 												</Pie>
 												<Tooltip />

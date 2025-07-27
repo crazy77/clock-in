@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { Navigation } from "~/components/layout/Navigation";
 import { Toaster } from "~/components/ui/sonner";
 import { languageAtom } from "~/stores/language";
-import { systemThemeAtom, themeAtom, currentThemeAtom } from "~/stores/theme";
+import { currentThemeAtom, systemThemeAtom, themeAtom } from "~/stores/theme";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
@@ -52,7 +52,7 @@ function ThemeProvider() {
 		const applyTheme = () => {
 			const store = require("jotai").getDefaultStore();
 			const currentTheme = store.get(currentThemeAtom);
-			
+
 			// HTML 요소에 테마 클래스 적용
 			const html = document.documentElement;
 			html.classList.remove("light", "dark");
@@ -63,9 +63,11 @@ function ThemeProvider() {
 		applyTheme();
 
 		// 테마 변경 감지
-		const unsubscribe = require("jotai").getDefaultStore().sub(currentThemeAtom, () => {
-			applyTheme();
-		});
+		const unsubscribe = require("jotai")
+			.getDefaultStore()
+			.sub(currentThemeAtom, () => {
+				applyTheme();
+			});
 
 		return () => {
 			mediaQuery.removeEventListener("change", updateTheme);

@@ -2,8 +2,9 @@ import { format } from "date-fns";
 import { enUS, ko } from "date-fns/locale";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import dayjs from "dayjs";
 import { Calendar, Clock, MapPin, User } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "~/components/ui/badge";
@@ -34,35 +35,86 @@ export default function Home() {
 		{ enabled: !!sessionData?.user },
 	);
 
+	// Date 객체들을 메모이제이션
+	const clockInDate = useMemo(() => {
+		return todayRecord?.clockInTime ? new Date(todayRecord.clockInTime) : null;
+	}, [todayRecord?.clockInTime]);
+
+	const clockOutDate = useMemo(() => {
+		return todayRecord?.clockOutTime
+			? new Date(todayRecord.clockOutTime)
+			: null;
+	}, [todayRecord?.clockOutTime]);
+
+	// 근무 시간을 메모이제이션
+	const workingHours = useMemo(() => {
+		if (!clockInDate || !clockOutDate) {
+			return "미체크";
+		}
+		const workTime = dayjs(clockOutDate).diff(dayjs(clockInDate), "minute");
+		return `${Math.floor(workTime / 60)}시간 ${workTime % 60}분`;
+	}, [clockInDate, clockOutDate]);
+
+	// 토스트 메시지 함수들을 useCallback으로 메모이제이션
+	const showClockInSuccess = useCallback(() => {
+		toast.success(t("clockInSuccess"));
+	}, [t]);
+
+	const showClockOutSuccess = useCallback(() => {
+		toast.success(t("clockOutSuccess"));
+	}, [t]);
+
+	const showError = useCallback(
+		(message: string) => {
+			if (message === "Already clocked in today") {
+				toast.error(t("alreadyClockedIn"));
+			} else if (message === "Today is a holiday") {
+				toast.error(t("todayIsHoliday"));
+			} else if (message === "Location out of range") {
+				toast.error(t("locationError"));
+			} else {
+				toast.error(message);
+			}
+		},
+		[t],
+	);
+
+	const showClockOutError = useCallback(
+		(message: string) => {
+			if (message === "Already clocked out today") {
+				toast.error(t("alreadyClockedOut"));
+			} else {
+				toast.error(message);
+			}
+		},
+		[t],
+	);
+
+	const showLocationError = useCallback(() => {
+		toast.error(t("locationError"));
+	}, [t]);
+
+	const showGpsError = useCallback(() => {
+		toast.error(t("gpsError"));
+	}, [t]);
+
 	const clockInMutation = api.attendance.clockIn.useMutation({
 		onSuccess: () => {
-			toast.success(t("clockInSuccess"));
+			showClockInSuccess();
 			refetchTodayRecord();
 		},
 		onError: (error) => {
-			if (error.message === "Already clocked in today") {
-				toast.error(t("alreadyClockedIn"));
-			} else if (error.message === "Today is a holiday") {
-				toast.error(t("todayIsHoliday"));
-			} else if (error.message === "Location out of range") {
-				toast.error(t("locationError"));
-			} else {
-				toast.error(error.message);
-			}
+			showError(error.message);
 		},
 	});
 
 	const clockOutMutation = api.attendance.clockOut.useMutation({
 		onSuccess: () => {
-			toast.success(t("clockOutSuccess"));
+			showClockOutSuccess();
 			refetchTodayRecord();
 		},
 		onError: (error) => {
-			if (error.message === "Already clocked out today") {
-				toast.error(t("alreadyClockedOut"));
-			} else {
-				toast.error(error.message);
-			}
+			showClockOutError(error.message);
 		},
 	});
 
@@ -75,28 +127,28 @@ export default function Home() {
 		return () => clearInterval(timer);
 	}, []);
 
-	// 현재 위치 가져오기
+	// 현재 위치 가져오기 - sessionData?.user만 의존성으로 설정
 	useEffect(() => {
 		if (sessionData?.user) {
 			getCurrentLocation()
 				.then(setCurrentLocation)
 				.catch((error) => {
 					console.error("Failed to get location:", error);
-					toast.error(t("gpsError"));
+					showGpsError();
 				});
 		}
-	}, [sessionData?.user, t]);
+	}, [sessionData?.user, showGpsError]);
 
 	// 출근 처리
 	const handleClockIn = async () => {
 		if (!currentLocation || !workplaces || workplaces.length === 0) {
-			toast.error(t("locationError"));
+			showLocationError();
 			return;
 		}
 
 		const workplace = workplaces[0]; // 첫 번째 출퇴근 장소 사용
 		if (!workplace) {
-			toast.error(t("locationError"));
+			showLocationError();
 			return;
 		}
 
@@ -109,7 +161,7 @@ export default function Home() {
 				radius: workplace.radius,
 			})
 		) {
-			toast.error(t("locationError"));
+			showLocationError();
 			return;
 		}
 
@@ -128,13 +180,13 @@ export default function Home() {
 	// 퇴근 처리
 	const handleClockOut = async () => {
 		if (!currentLocation || !workplaces || workplaces.length === 0) {
-			toast.error(t("locationError"));
+			showLocationError();
 			return;
 		}
 
 		const workplace = workplaces[0]; // 첫 번째 출퇴근 장소 사용
 		if (!workplace) {
-			toast.error(t("locationError"));
+			showLocationError();
 			return;
 		}
 
@@ -147,7 +199,7 @@ export default function Home() {
 				radius: workplace.radius,
 			})
 		) {
-			toast.error(t("locationError"));
+			showLocationError();
 			return;
 		}
 
@@ -310,7 +362,7 @@ export default function Home() {
 												{t("clockInTime")}
 											</span>
 											<span className="font-mono">
-												{format(new Date(todayRecord.clockInTime), "HH:mm:ss")}
+												{clockInDate && format(clockInDate, "HH:mm:ss")}
 											</span>
 										</div>
 									)}
@@ -322,10 +374,7 @@ export default function Home() {
 													{t("clockOutTime")}
 												</span>
 												<span className="font-mono">
-													{format(
-														new Date(todayRecord.clockOutTime),
-														"HH:mm:ss",
-													)}
+													{clockOutDate && format(clockOutDate, "HH:mm:ss")}
 												</span>
 											</div>
 											<Separator />
@@ -333,14 +382,7 @@ export default function Home() {
 												<span className="text-gray-600 text-sm dark:text-gray-300">
 													{t("workingHours")}
 												</span>
-												<span className="font-mono">
-													{format(
-														new Date(todayRecord.clockOutTime).getTime() -
-															new Date(todayRecord.clockInTime || "").getTime(),
-														"HH:mm",
-														{ locale: language === "ko" ? ko : enUS },
-													)}
-												</span>
+												<span className="font-mono">{workingHours}</span>
 											</div>
 										</>
 									)}

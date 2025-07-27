@@ -1,5 +1,6 @@
 import { getDefaultStore } from "jotai";
 import { useAtomValue } from "jotai";
+import { useCallback } from "react";
 import { languageAtom } from "~/stores/language";
 
 const translations = {
@@ -46,10 +47,16 @@ const translations = {
 		noRecords: "출퇴근 기록이 없습니다",
 		loadMore: "더 보기",
 
-		// 관리자
-		admin: "관리자",
+		// 관리자 페이지
 		adminPanel: "관리자 패널",
-		adminPanelDescription: "전체 직원의 출퇴근 상황을 관리합니다",
+		adminPanelDescription: "출퇴근 기록, 장소, 공휴일을 관리합니다.",
+		noAttendanceToday: "오늘 출퇴근 기록이 없습니다",
+		noAttendanceTodayDescription: "아직 출퇴근한 직원이 없습니다.",
+		noMonthlyRecords: "월간 기록이 없습니다",
+		noMonthlyRecordsDescription: "이번 달 출퇴근 기록이 없습니다.",
+		workplaceSettingsDescription: "출퇴근 가능한 장소를 설정합니다.",
+		noWorkplacesDescription:
+			"등록된 장소가 없습니다. 새로운 장소를 추가해주세요.",
 		workplaceSettings: "출퇴근 장소 설정",
 		defaultTimes: "기본 출퇴근 시간",
 		userSettings: "회원별 설정",
@@ -61,7 +68,6 @@ const translations = {
 		clockedIn: "출근 완료",
 		clockedOut: "퇴근 완료",
 		noRecordsToday: "오늘 출퇴근 기록이 없습니다",
-		noMonthlyRecords: "월별 기록이 없습니다",
 		export: "내보내기",
 		addWorkplace: "장소 추가",
 		editWorkplace: "장소 수정",
@@ -73,14 +79,15 @@ const translations = {
 		confirmDelete: "정말 삭제하시겠습니까?",
 		add: "추가",
 		noUserSettings: "사용자 설정이 없습니다",
-		userSettingsGuide: "관리자에서 사용자를 추가하거나, 사용자가 최초 로그인 시 자동으로 생성됩니다.",
+		userSettingsGuide:
+			"관리자에서 사용자를 추가하거나, 사용자가 최초 로그인 시 자동으로 생성됩니다.",
 		defaultClockIn: "기본 출근시간",
 		defaultClockOut: "기본 퇴근시간",
 
 		// 시간 설정 페이지
-		timeSettings: "출퇴근 시간 설정",
-		timeSettingsDescription:
-			"기본 출퇴근 시간과 개별 사용자별 시간을 설정할 수 있습니다",
+		timeSettings: "시간 설정",
+		timeSettingsDescription: "기본 및 개별 사용자 출퇴근 시간을 설정합니다.",
+		back: "뒤로",
 		individualTimes: "개별 시간 설정",
 		individualTimesDescription:
 			"각 사용자별로 개별적인 출퇴근 시간을 설정합니다",
@@ -209,7 +216,16 @@ const translations = {
 		// Admin
 		admin: "Admin",
 		adminPanel: "Admin Panel",
-		adminPanelDescription: "Manage all employees' attendance status",
+		adminPanelDescription:
+			"Manage attendance records, workplaces, and holidays.",
+		noAttendanceToday: "No attendance records for today",
+		noAttendanceTodayDescription: "No employees have clocked in yet.",
+		noMonthlyRecords: "No monthly records",
+		noMonthlyRecordsDescription: "No attendance records for this month.",
+		workplaceSettingsDescription:
+			"Set up workplaces where attendance is allowed.",
+		noWorkplacesDescription:
+			"No workplaces registered. Please add a new workplace.",
 		workplaceSettings: "Workplace Settings",
 		defaultTimes: "Default Times",
 		userSettings: "User Settings",
@@ -221,7 +237,6 @@ const translations = {
 		clockedIn: "Clocked In",
 		clockedOut: "Clocked Out",
 		noRecordsToday: "No attendance records for today",
-		noMonthlyRecords: "No monthly records",
 		export: "Export",
 		addWorkplace: "Add Workplace",
 		editWorkplace: "Edit Workplace",
@@ -233,13 +248,15 @@ const translations = {
 		confirmDelete: "Are you sure you want to delete?",
 		add: "Add",
 		noUserSettings: "No user settings",
-		userSettingsGuide: "Users can be added by the administrator or automatically generated when they first log in.",
+		userSettingsGuide:
+			"Users can be added by the administrator or automatically generated when they first log in.",
 		defaultClockIn: "Default Clock In",
 		defaultClockOut: "Default Clock Out",
 
 		// Time Settings
 		timeSettings: "Time Settings",
 		timeSettingsDescription: "Set default and individual user times",
+		back: "Back",
 		individualTimes: "Individual Times",
 		individualTimesDescription: "Set individual times for each user",
 		defaultTimesDescription: "Set default times to be applied to all users",
@@ -329,10 +346,15 @@ export type TranslationKey = keyof typeof translations.ko;
 export function useTranslation() {
 	const language = useAtomValue(languageAtom);
 
-	return {
-		t: (key: TranslationKey): string => {
-			return translations[language][key] || key;
+	const t = useCallback(
+		(key: TranslationKey): string => {
+			return translations[language][key] ?? key;
 		},
+		[language],
+	);
+
+	return {
+		t,
 		language,
 	};
 }
@@ -341,5 +363,5 @@ export function useTranslation() {
 export function t(key: TranslationKey): string {
 	const store = getDefaultStore();
 	const language = store.get(languageAtom);
-	return translations[language][key] || key;
+	return translations[language][key] ?? key;
 }

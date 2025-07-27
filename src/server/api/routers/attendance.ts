@@ -472,7 +472,7 @@ export const attendanceRouter = createTRPCRouter({
 					defaultClockInTime: setting?.defaultClockInTime || "09:00",
 					defaultClockOutTime: setting?.defaultClockOutTime || "18:00",
 				};
-			})
+			}),
 		);
 
 		return defaultTimes;

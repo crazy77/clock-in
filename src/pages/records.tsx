@@ -4,7 +4,13 @@ import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useState } from "react";
 
-import { Calendar, Clock, MapPin, TrendingUp, TrendingDown } from "lucide-react";
+import {
+	Calendar,
+	Clock,
+	MapPin,
+	TrendingDown,
+	TrendingUp,
+} from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -25,7 +31,7 @@ export default function RecordsPage() {
 			{
 				getNextPageParam: (lastPage) => lastPage.nextCursor,
 				enabled: !!sessionData?.user,
-			}
+			},
 		);
 
 	const allRecords = data?.pages.flatMap((page) => page.items) ?? [];
@@ -55,7 +61,7 @@ export default function RecordsPage() {
 	if (isLoading) {
 		return (
 			<div className="container mx-auto p-4">
-				<div className="flex items-center justify-center h-64">
+				<div className="flex h-64 items-center justify-center">
 					<div className="text-lg">{t("loading")}</div>
 				</div>
 			</div>
@@ -70,7 +76,7 @@ export default function RecordsPage() {
 
 			<div className="container mx-auto p-4">
 				<div className="mb-6">
-					<h1 className="text-3xl font-bold mb-2">{t("attendanceRecords")}</h1>
+					<h1 className="mb-2 font-bold text-3xl">{t("attendanceRecords")}</h1>
 					<p className="text-muted-foreground">
 						{t("attendanceRecordsDescription")}
 					</p>
@@ -79,9 +85,9 @@ export default function RecordsPage() {
 				<div className="space-y-4">
 					{allRecords.length === 0 ? (
 						<Card>
-							<CardContent className="flex items-center justify-center h-32">
+							<CardContent className="flex h-32 items-center justify-center">
 								<div className="text-center">
-									<Calendar className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+									<Calendar className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
 									<p className="text-muted-foreground">{t("noRecords")}</p>
 								</div>
 							</CardContent>
@@ -101,50 +107,76 @@ export default function RecordsPage() {
 									</div>
 								</CardHeader>
 								<CardContent>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 										<div className="space-y-3">
 											<div className="flex items-center space-x-2">
 												<TrendingUp className="h-4 w-4 text-green-600" />
 												<span className="font-medium">{t("clockIn")}</span>
-												<span className="text-sm text-muted-foreground">
+												<span className="text-muted-foreground text-sm">
 													{formatTime(record.clockInTime)}
 												</span>
 											</div>
-											{record.clockInLocation && (
-												<div className="flex items-center space-x-2 text-sm text-muted-foreground">
-													<MapPin className="h-3 w-3" />
-													<span>
-														{record.clockInLocation.latitude.toFixed(6)},{" "}
-														{record.clockInLocation.longitude.toFixed(6)}
-													</span>
-												</div>
-											)}
+											{!!record.clockInLocation &&
+												typeof record.clockInLocation === "object" &&
+												"latitude" in record.clockInLocation && (
+													<div className="flex items-center space-x-2 text-muted-foreground text-sm">
+														<MapPin className="h-3 w-3" />
+														<span>
+															{(
+																record.clockInLocation as {
+																	latitude: number;
+																	longitude: number;
+																}
+															).latitude.toFixed(6)}
+															,{" "}
+															{(
+																record.clockInLocation as {
+																	latitude: number;
+																	longitude: number;
+																}
+															).longitude.toFixed(6)}
+														</span>
+													</div>
+												)}
 										</div>
 
 										<div className="space-y-3">
 											<div className="flex items-center space-x-2">
 												<TrendingDown className="h-4 w-4 text-red-600" />
 												<span className="font-medium">{t("clockOut")}</span>
-												<span className="text-sm text-muted-foreground">
+												<span className="text-muted-foreground text-sm">
 													{formatTime(record.clockOutTime)}
 												</span>
 											</div>
-											{record.clockOutLocation && (
-												<div className="flex items-center space-x-2 text-sm text-muted-foreground">
-													<MapPin className="h-3 w-3" />
-													<span>
-														{record.clockOutLocation.latitude.toFixed(6)},{" "}
-														{record.clockOutLocation.longitude.toFixed(6)}
-													</span>
-												</div>
-											)}
+											{!!record.clockOutLocation &&
+												typeof record.clockOutLocation === "object" &&
+												"latitude" in record.clockOutLocation && (
+													<div className="flex items-center space-x-2 text-muted-foreground text-sm">
+														<MapPin className="h-3 w-3" />
+														<span>
+															{(
+																record.clockOutLocation as {
+																	latitude: number;
+																	longitude: number;
+																}
+															).latitude.toFixed(6)}
+															,{" "}
+															{(
+																record.clockOutLocation as {
+																	latitude: number;
+																	longitude: number;
+																}
+															).longitude.toFixed(6)}
+														</span>
+													</div>
+												)}
 										</div>
 									</div>
 
 									{record.workplace && (
 										<>
 											<Separator className="my-4" />
-											<div className="flex items-center space-x-2 text-sm text-muted-foreground">
+											<div className="flex items-center space-x-2 text-muted-foreground text-sm">
 												<MapPin className="h-3 w-3" />
 												<span>{record.workplace.name}</span>
 											</div>
@@ -170,4 +202,4 @@ export default function RecordsPage() {
 			</div>
 		</>
 	);
-} 
+}

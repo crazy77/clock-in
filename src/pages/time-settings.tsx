@@ -2,8 +2,11 @@ import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useState } from "react";
 
+import type { inferProcedureOutput } from "@trpc/server";
 import { ArrowLeft, Clock, Settings, Users } from "lucide-react";
 import { toast } from "sonner";
+import { AdminGuard } from "~/components/ui/AdminGuard";
+import { TimePicker } from "~/components/ui/TimePicker";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -12,9 +15,9 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useTranslation } from "~/lib/i18n";
-import { api } from "~/utils/api";
-import { TimePicker } from "~/components/ui/TimePicker";
-import { AdminGuard } from "~/components/ui/AdminGuard";
+import { type RouterOutputs, api } from "~/utils/api";
+
+type DefaultTime = RouterOutputs["attendance"]["getDefaultTimes"];
 
 export default function TimeSettingsPage() {
 	return (
@@ -31,10 +34,13 @@ function TimeSettingsPageContent() {
 	const [defaultClockOutTime, setDefaultClockOutTime] = useState("18:00");
 
 	// 기본 출퇴근 시간 조회
-	const { data: defaultTimes, refetch: refetchDefaultTimes } =
-		api.attendance.getDefaultTimes.useQuery(undefined, {
-			enabled: !!sessionData?.user,
-		});
+	const {
+		data: defaultTimes,
+		refetch: refetchDefaultTimes,
+		isLoading,
+	} = api.attendance.getDefaultTimes.useQuery(undefined, {
+		enabled: !!sessionData?.user,
+	});
 
 	// 기본 출퇴근 시간 설정 뮤테이션
 	const updateDefaultTimesMutation =
@@ -61,14 +67,14 @@ function TimeSettingsPageContent() {
 
 	const handleSaveDefaultTimes = () => {
 		// 모든 사용자에게 기본 시간 적용
-		if (defaultTimes) {
-			defaultTimes.forEach((setting) => {
+		if (defaultTimes && defaultTimes.length > 0) {
+			for (const setting of defaultTimes) {
 				updateDefaultTimesMutation.mutate({
 					userId: setting.userId,
 					defaultClockInTime,
 					defaultClockOutTime,
 				});
-			});
+			}
 		}
 	};
 
@@ -100,25 +106,29 @@ function TimeSettingsPageContent() {
 				<title>{t("timeSettings")} - Clock In</title>
 			</Head>
 
-			<div className="container mx-auto p-4">
+			<div className="container mx-auto max-w-4xl p-4">
 				<div className="mb-6">
-					<div className="mb-2 flex items-center space-x-2">
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={() => window.history.back()}
-						>
-							<ArrowLeft className="h-4 w-4" />
-						</Button>
-						<h1 className="font-bold text-3xl">{t("timeSettings")}</h1>
+					<Button
+						variant="ghost"
+						onClick={() => window.history.back()}
+						className="mb-4"
+					>
+						<ArrowLeft className="mr-2 h-4 w-4" />
+						{t("back")}
+					</Button>
+
+					<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+						<div>
+							<h1 className="font-bold text-2xl">{t("timeSettings")}</h1>
+							<p className="mt-1 text-muted-foreground">
+								{t("timeSettingsDescription")}
+							</p>
+						</div>
 					</div>
-					<p className="text-muted-foreground">
-						{t("timeSettingsDescription")}
-					</p>
 				</div>
 
-				<Tabs defaultValue="default" className="space-y-4">
-					<TabsList>
+				<Tabs defaultValue="default" className="w-full">
+					<TabsList className="grid w-full grid-cols-2">
 						<TabsTrigger value="default">{t("defaultTimes")}</TabsTrigger>
 						<TabsTrigger value="individual">{t("individualTimes")}</TabsTrigger>
 					</TabsList>
@@ -136,18 +146,24 @@ function TimeSettingsPageContent() {
 									{t("defaultTimesDescription")}
 								</p>
 
-								<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+								<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 									<div>
 										<Label htmlFor="defaultClockInTime">
 											{t("defaultClockIn")}
 										</Label>
-										<TimePicker value={defaultClockInTime} onChange={setDefaultClockInTime} />
+										<TimePicker
+											value={defaultClockInTime}
+											onChange={setDefaultClockInTime}
+										/>
 									</div>
 									<div>
 										<Label htmlFor="defaultClockOutTime">
 											{t("defaultClockOut")}
 										</Label>
-										<TimePicker value={defaultClockOutTime} onChange={setDefaultClockOutTime} />
+										<TimePicker
+											value={defaultClockOutTime}
+											onChange={setDefaultClockOutTime}
+										/>
 									</div>
 								</div>
 
@@ -171,29 +187,36 @@ function TimeSettingsPageContent() {
 									{t("individualTimesDescription")}
 								</p>
 
-								<div className="space-y-4">
-									{defaultTimes?.length === 0 ? (
-										<div className="flex h-32 items-center justify-center">
-											<div className="text-center">
-												<Settings className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-												<p className="text-muted-foreground font-semibold text-lg">
-													{t("noUserSettings")}
-												</p>
-												<p className="text-muted-foreground text-sm mt-2">
-													{t("userSettingsGuide")}
-												</p>
-											</div>
+								{isLoading ? (
+									<div className="flex h-32 items-center justify-center">
+										<div className="text-center">
+											<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
+											<p className="text-muted-foreground">{t("loading")}</p>
 										</div>
-									) : (
-										defaultTimes?.map((setting) => (
+									</div>
+								) : !defaultTimes || defaultTimes.length === 0 ? (
+									<div className="flex h-32 items-center justify-center">
+										<div className="text-center">
+											<Settings className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+											<p className="font-semibold text-lg text-muted-foreground">
+												{t("noUserSettings")}
+											</p>
+											<p className="mt-2 text-muted-foreground text-sm">
+												{t("userSettingsGuide")}
+											</p>
+										</div>
+									</div>
+								) : (
+									<div className="space-y-4">
+										{defaultTimes.map((setting) => (
 											<UserTimeCard
-												key={setting.id}
+												key={setting.userId}
 												setting={setting}
 												onUpdate={handleUpdateUserTime}
 											/>
-										))
-									)}
-								</div>
+										))}
+									</div>
+								)}
 							</CardContent>
 						</Card>
 					</TabsContent>
@@ -208,7 +231,7 @@ function UserTimeCard({
 	setting,
 	onUpdate,
 }: {
-	setting: any;
+	setting: DefaultTime[number];
 	onUpdate: (userId: string, clockInTime: string, clockOutTime: string) => void;
 }) {
 	const { t } = useTranslation();
@@ -230,14 +253,36 @@ function UserTimeCard({
 	return (
 		<Card>
 			<CardContent className="p-4">
-				<div className="flex items-center justify-between">
+				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					<div className="flex-1">
-						<h3 className="font-semibold">
-							{setting.user?.name || setting.user?.email || "Unknown"}
+						<h3 className="font-semibold text-base sm:text-lg">
+							{setting.name || setting.email || "Unknown User"}
 						</h3>
+						{setting.email && setting.name && (
+							<p className="mt-1 text-muted-foreground text-sm">
+								{setting.email}
+							</p>
+						)}
 
-						{isEditing ? (
-							<div className="mt-3 grid grid-cols-2 gap-4">
+						{!isEditing && (
+							<div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+								<div className="flex items-center gap-2">
+									<Clock className="h-4 w-4 text-muted-foreground" />
+									<span className="text-muted-foreground text-sm">
+										{t("defaultClockIn")}: {setting.defaultClockInTime}
+									</span>
+								</div>
+								<div className="flex items-center gap-2">
+									<Clock className="h-4 w-4 text-muted-foreground" />
+									<span className="text-muted-foreground text-sm">
+										{t("defaultClockOut")}: {setting.defaultClockOutTime}
+									</span>
+								</div>
+							</div>
+						)}
+
+						{isEditing && (
+							<div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
 								<div>
 									<Label className="text-muted-foreground text-sm">
 										{t("defaultClockIn")}
@@ -251,42 +296,37 @@ function UserTimeCard({
 									<TimePicker value={clockOutTime} onChange={setClockOutTime} />
 								</div>
 							</div>
-						) : (
-							<div className="mt-2 grid grid-cols-2 gap-4">
-								<div>
-									<Label className="text-muted-foreground text-sm">
-										{t("defaultClockIn")}
-									</Label>
-									<p className="font-medium">{setting.defaultClockInTime}</p>
-								</div>
-								<div>
-									<Label className="text-muted-foreground text-sm">
-										{t("defaultClockOut")}
-									</Label>
-									<p className="font-medium">{setting.defaultClockOutTime}</p>
-								</div>
-							</div>
 						)}
 					</div>
 
-					<div className="flex items-center space-x-2">
-						{isEditing ? (
-							<>
-								<Button variant="outline" size="sm" onClick={handleCancel}>
-									{t("cancel")}
-								</Button>
-								<Button size="sm" onClick={handleSave}>
-									{t("save")}
-								</Button>
-							</>
-						) : (
+					<div className="flex flex-col gap-2 sm:flex-row">
+						{!isEditing ? (
 							<Button
 								variant="outline"
 								size="sm"
 								onClick={() => setIsEditing(true)}
+								className="w-full sm:w-auto"
 							>
 								{t("edit")}
 							</Button>
+						) : (
+							<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+								<Button
+									size="sm"
+									onClick={handleSave}
+									className="flex-1 sm:flex-none"
+								>
+									{t("save")}
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={handleCancel}
+									className="flex-1 sm:flex-none"
+								>
+									{t("cancel")}
+								</Button>
+							</div>
 						)}
 					</div>
 				</div>
