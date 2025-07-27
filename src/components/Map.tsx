@@ -14,7 +14,7 @@ export default function NaverMap({ lat, lng }: { lat: number; lng: number }) {
 	return (
 		<>
 			<Script
-				src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=YOUR_CLIENT_ID"
+				src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=rroxtj31za"
 				onLoad={initMap}
 			/>
 			<div id="naver-map" style={{ width: "100%", height: "400px" }} />
