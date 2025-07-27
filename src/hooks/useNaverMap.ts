@@ -130,36 +130,9 @@ export function useNaverMap({
 			// 지도 클릭 이벤트
 			const mapClickListener = (e: naver.maps.PointerEvent) => {
 				const clickedLatLng = e.coord as naver.maps.LatLng;
-				console.log("Log ~ mapClickListener ~ clickedLatLng:", clickedLatLng);
 				const lat = clickedLatLng.lat();
 				const lng = clickedLatLng.lng();
-
 				markerRef.current?.setPosition(clickedLatLng);
-				try {
-					naver.maps.Service?.reverseGeocode(
-						{ coords: clickedLatLng },
-						(status, response) => {
-							console.log("Log ~ mapClickListener ~ response:", response);
-							console.log("Log ~ mapClickListener ~ status:", status);
-							if (status !== naver.maps.Service.Status.OK) {
-								return console.error("주소를 찾을 수 없습니다!");
-							}
-
-							const result = response.v2;
-							const address = result.address.jibunAddress; // 지번 주소
-							const roadAddress = result.address.roadAddress; // 도로명 주소
-
-							console.log("지번 주소:", address);
-							console.log("도로명 주소:", roadAddress);
-
-							// 결과 활용
-							console.log(`클릭한 위치의 주소: ${address}`);
-						},
-					);
-				} catch (error) {
-					console.log("Log ~ mapClickListener ~ error:", error);
-				}
-
 				onLocationChange?.(lat, lng);
 			};
 

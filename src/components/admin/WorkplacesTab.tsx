@@ -110,7 +110,7 @@ export function WorkplacesTab() {
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{workplaces?.map((workplace) => (
 					<Card key={workplace.id}>
-						<CardHeader className="pb-3">
+						<CardHeader className="">
 							<div className="flex items-center justify-between">
 								<CardTitle className="flex items-center space-x-2 text-base">
 									<Building2 className="h-4 w-4" />
@@ -136,6 +136,9 @@ export function WorkplacesTab() {
 						</CardHeader>
 						<CardContent className="space-y-2">
 							<div className="text-sm">
+								<div className="text-muted-foreground">
+									{t("address")}: {workplace.address}
+								</div>
 								<div className="text-muted-foreground">
 									{t("latitude")}: {Number(workplace.latitude).toFixed(6)},{" "}
 									{t("longitude")}: {Number(workplace.longitude).toFixed(6)}

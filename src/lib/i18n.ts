@@ -189,6 +189,7 @@ const translations = {
 		alreadyClockedIn: "오늘 이미 출근했습니다",
 		alreadyClockedOut: "오늘 이미 퇴근했습니다",
 		todayIsHoliday: "오늘은 공휴일입니다",
+		address: "주소",
 	},
 	en: {
 		// Common
@@ -376,6 +377,7 @@ const translations = {
 		alreadyClockedIn: "Already clocked in today",
 		alreadyClockedOut: "Already clocked out today",
 		todayIsHoliday: "Today is a holiday",
+		address: "Address",
 	},
 } as const;
 

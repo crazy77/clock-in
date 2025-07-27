@@ -410,9 +410,13 @@ export const attendanceRouter = createTRPCRouter({
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
+			const address = await getAddress(
+				Number(input.latitude),
+				Number(input.longitude),
+			);
 			const newWorkplace = await ctx.db
 				.insert(workplaces)
-				.values(input)
+				.values({ ...input, address })
 				.returning();
 			return newWorkplace[0];
 		}),
@@ -430,9 +434,14 @@ export const attendanceRouter = createTRPCRouter({
 		)
 		.mutation(async ({ ctx, input }) => {
 			const { id, ...updateData } = input;
+			const address = await getAddress(
+				Number(updateData.latitude),
+				Number(updateData.longitude),
+			);
+			console.log("Log ~ updateWorkplace ~ address:", address);
 			const updatedWorkplace = await ctx.db
 				.update(workplaces)
-				.set(updateData)
+				.set({ ...updateData, address })
 				.where(eq(workplaces.id, id))
 				.returning();
 			return updatedWorkplace[0];

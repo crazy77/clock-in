@@ -140,6 +140,7 @@ export const workplaces = createTable("workplace", (d) => ({
 	latitude: decimal("latitude", { precision: 10, scale: 8 }).notNull(),
 	longitude: decimal("longitude", { precision: 11, scale: 8 }).notNull(),
 	radius: d.integer().notNull().default(100), // 미터 단위
+	address: d.varchar({ length: 255 }),
 	createdAt: d
 		.timestamp({ withTimezone: true })
 		.default(sql`CURRENT_TIMESTAMP`)

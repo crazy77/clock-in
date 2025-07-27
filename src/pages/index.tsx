@@ -1,31 +1,23 @@
 import { format } from "date-fns";
-import { enUS, ko } from "date-fns/locale";
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import dayjs from "dayjs";
-import { Calendar, Clock, MapPin, User } from "lucide-react";
-import Image from "next/image";
+import { Calendar, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import NaverMap from "~/components/Map";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
-import {
-	type TranslationKey,
-	getStatusTranslationKey,
-	t,
-	useTranslation,
-} from "~/lib/i18n";
+import { getStatusTranslationKey, t, useTranslation } from "~/lib/i18n";
 import { getCurrentLocation, isWithinWorkplace } from "~/lib/location";
 import { api } from "~/utils/api";
 
 export default function Home() {
 	const { data: sessionData } = useSession();
-	const { t, language } = useTranslation();
-	const [currentTime, setCurrentTime] = useState(new Date());
+	const { t } = useTranslation();
 	const [currentLocation, setCurrentLocation] = useState<{
 		latitude: number;
 		longitude: number;
@@ -133,15 +125,6 @@ export default function Home() {
 			showClockOutError(error.message);
 		},
 	});
-
-	// 현재 시간 업데이트
-	useEffect(() => {
-		const timer = setInterval(() => {
-			setCurrentTime(new Date());
-		}, 1000);
-
-		return () => clearInterval(timer);
-	}, []);
 
 	// 현재 위치 가져오기 - sessionData?.user만 의존성으로 설정
 	useEffect(() => {
@@ -284,29 +267,6 @@ export default function Home() {
 						</h1>
 					</div>
 
-					{/* 현재 시간 */}
-					{/* <Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<Clock className="h-5 w-5" />
-								{t("currentTime")}
-							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className="text-center font-mono text-3xl">
-								{format(currentTime, "HH:mm:ss", {
-									locale: language === "ko" ? ko : enUS,
-								})}
-							</p>
-							<p className="mt-2 text-center text-gray-600 text-sm dark:text-gray-300">
-								{format(currentTime, "yyyy년 MM월 dd일 EEEE", {
-									locale: language === "ko" ? ko : enUS,
-								})}
-							</p>
-						</CardContent>
-					</Card> */}
-
-					{/* 현재 위치 */}
 					<Card>
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2">
@@ -320,11 +280,7 @@ export default function Home() {
 								lng={currentLocation?.longitude ?? 126.978}
 							/>
 							{currentLocation ? (
-								<p className="font-mono text-sm">
-									{currentLocation.latitude.toFixed(6)},{" "}
-									{currentLocation.longitude.toFixed(6)}
-									{address?.results?.[0]?.region?.area1?.name}
-								</p>
+								<p className="font-mono text-sm">{address}</p>
 							) : (
 								<p className="text-gray-500 text-sm">{t("loading")}</p>
 							)}
