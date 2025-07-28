@@ -1,14 +1,13 @@
 import { Provider } from "jotai";
-import type { Session } from "next-auth";
-import { SessionProvider } from "next-auth/react";
 import type { AppType } from "next/app";
 import { Geist } from "next/font/google";
+import type { Session } from "next-auth";
+import { SessionProvider } from "next-auth/react";
 import { useEffect } from "react";
 
 import { Navigation } from "~/components/layout/Navigation";
 import { Toaster } from "~/components/ui/sonner";
-import { languageAtom } from "~/stores/language";
-import { currentThemeAtom, systemThemeAtom, themeAtom } from "~/stores/theme";
+import { currentThemeAtom, systemThemeAtom } from "~/stores/theme";
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";

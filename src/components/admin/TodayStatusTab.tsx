@@ -103,7 +103,9 @@ export function TodayStatusTab() {
 									<Clock className="h-4 w-4 text-muted-foreground" />
 									<span className="text-muted-foreground">
 										{t("clockIn")}:{" "}
-										{record.clockInTime ? format(new Date(record.clockInTime), "HH:mm") : "-"}
+										{record.clockInTime
+											? format(new Date(record.clockInTime), "HH:mm")
+											: "-"}
 									</span>
 								</div>
 								{record.clockOutTime && (

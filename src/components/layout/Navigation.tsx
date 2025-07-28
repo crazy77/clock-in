@@ -1,17 +1,8 @@
-import { signOut, useSession } from "next-auth/react";
+import { BarChart3, Calendar, Home, LogOut, User, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-
-import {
-	BarChart3,
-	Calendar,
-	Home,
-	LogOut,
-	Settings,
-	User,
-	Users,
-} from "lucide-react";
-import Image from "next/image";
+import { signOut, useSession } from "next-auth/react";
 import { Button } from "~/components/ui/button";
 import { useTranslation } from "~/lib/i18n";
 
@@ -30,6 +21,20 @@ export function Navigation() {
 	if (!sessionData?.user) {
 		return null;
 	}
+
+	const logout = async () => {
+		await signOut({
+			callbackUrl: "/",
+		});
+		const redirectUri =
+			process.env.NODE_ENV === "development"
+				? "http://localhost:3000"
+				: (process.env.VERCEL_URL ?? "https://clock-in-seven.vercel.app");
+		const kakaoLogoutUri = `https://kauth.kakao.com/oauth/logout?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&logout_redirect_uri=${encodeURIComponent(
+			redirectUri,
+		)}`;
+		router.push(kakaoLogoutUri);
+	};
 
 	return (
 		<nav className="border-b bg-background">
@@ -82,7 +87,7 @@ export function Navigation() {
 							</div>
 						</div>
 
-						<Button variant="ghost" size="sm" onClick={() => signOut()}>
+						<Button variant="ghost" size="sm" onClick={() => logout()}>
 							<LogOut className="h-4 w-4" />
 						</Button>
 					</div>

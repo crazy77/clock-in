@@ -7,8 +7,8 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { useTranslation } from "~/lib/i18n";
-import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
+import { api } from "~/utils/api";
 
 type Workplaces = RouterOutputs["attendance"]["getWorkplaces"];
 

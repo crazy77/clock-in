@@ -1,5 +1,4 @@
-import { getDefaultStore } from "jotai";
-import { useAtomValue } from "jotai";
+import { getDefaultStore, useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { languageAtom } from "~/stores/language";
 

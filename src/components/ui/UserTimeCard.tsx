@@ -3,10 +3,10 @@ import Image from "next/image";
 import { useState } from "react";
 import { useTranslation } from "~/lib/i18n";
 import type { RouterOutputs } from "~/utils/api";
-import { TimePicker } from "./TimePicker";
 import { Button } from "./button";
 import { Card, CardContent } from "./card";
 import { Label } from "./label";
+import { TimePicker } from "./TimePicker";
 
 type UserTimeCardSetting =
 	RouterOutputs["attendance"]["getDefaultTimes"][number];

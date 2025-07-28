@@ -1,19 +1,12 @@
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { useSession } from "next-auth/react";
+import { Calendar, MapPin, TrendingDown, TrendingUp } from "lucide-react";
 import Head from "next/head";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
-
-import {
-	Calendar,
-	Clock,
-	MapPin,
-	TrendingDown,
-	TrendingUp,
-} from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { useTranslation } from "~/lib/i18n";
 import { api } from "~/utils/api";
@@ -21,7 +14,7 @@ import { api } from "~/utils/api";
 export default function RecordsPage() {
 	const { data: sessionData } = useSession();
 	const { t } = useTranslation();
-	const [cursor, setCursor] = useState<number | undefined>(undefined);
+	const [_cursor, _setCursor] = useState<number | undefined>(undefined);
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
 		api.attendance.getRecords.useInfiniteQuery(

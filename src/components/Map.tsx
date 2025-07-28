@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 import { useNaverMap } from "~/hooks/useNaverMap";
 
 interface NaverMapProps {

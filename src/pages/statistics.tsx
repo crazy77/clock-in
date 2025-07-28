@@ -1,22 +1,5 @@
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { useSession } from "next-auth/react";
-import Head from "next/head";
-import { useMemo, useState } from "react";
-import {
-	Bar,
-	BarChart,
-	CartesianGrid,
-	Cell,
-	Legend,
-	Pie,
-	PieChart as RechartsPieChart,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
-} from "recharts";
-
 import {
 	Activity,
 	BarChart3,
@@ -26,8 +9,22 @@ import {
 	TrendingDown,
 	TrendingUp,
 } from "lucide-react";
+import Head from "next/head";
+import { useSession } from "next-auth/react";
+import { useMemo, useState } from "react";
+import {
+	Bar,
+	BarChart,
+	CartesianGrid,
+	Cell,
+	Pie,
+	PieChart as RechartsPieChart,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
+} from "recharts";
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
 	Select,
@@ -480,7 +477,7 @@ export default function StatisticsPage() {
 													fill="#8884d8"
 													dataKey="value"
 												>
-													{chartData.statusData.map((entry, index) => (
+													{chartData.statusData.map((entry, _index) => (
 														<Cell
 															key={`cell-${entry.name}`}
 															fill={entry.color}

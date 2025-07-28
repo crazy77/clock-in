@@ -1,7 +1,7 @@
-export { TodayStatusTab } from "./TodayStatusTab";
-export { MonthlyRecordsTab } from "./MonthlyRecordsTab";
-export { WorkplacesTab } from "./WorkplacesTab";
-export { TimeSettingsTab } from "./TimeSettingsTab";
-export { HolidaysTab } from "./HolidaysTab";
-export { WorkplaceDialog } from "./WorkplaceDialog";
 export { HolidayDialog } from "./HolidayDialog";
+export { HolidaysTab } from "./HolidaysTab";
+export { MonthlyRecordsTab } from "./MonthlyRecordsTab";
+export { TimeSettingsTab } from "./TimeSettingsTab";
+export { TodayStatusTab } from "./TodayStatusTab";
+export { WorkplaceDialog } from "./WorkplaceDialog";
+export { WorkplacesTab } from "./WorkplacesTab";

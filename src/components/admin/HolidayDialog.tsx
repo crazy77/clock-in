@@ -1,7 +1,6 @@
 import { Calendar } from "lucide-react";
-
-import { DatePicker } from "~/components/ui/DatePicker";
 import { Button } from "~/components/ui/button";
+import { DatePicker } from "~/components/ui/DatePicker";
 import {
 	Dialog,
 	DialogContent,

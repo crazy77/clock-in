@@ -12,7 +12,6 @@ import {
 	attendanceRecords,
 	holidays,
 	userSettings,
-	users,
 	workplaces,
 } from "~/server/db/schema";
 import { getAddress } from "~/utils/address";
@@ -260,7 +259,7 @@ export const attendanceRouter = createTRPCRouter({
 				},
 			});
 
-			let nextCursor: number | undefined = undefined;
+			let nextCursor: number | undefined;
 			if (items.length > limit) {
 				const nextItem = items.pop();
 				if (nextItem) {
@@ -361,7 +360,7 @@ export const attendanceRouter = createTRPCRouter({
 				},
 			});
 
-			let nextCursor: number | undefined = undefined;
+			let nextCursor: number | undefined;
 			if (items.length > limit) {
 				const nextItem = items.pop();
 				if (nextItem) {
